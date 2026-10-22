@@ -59,8 +59,8 @@ The live catalogue carries **61 model entries**. Both verified lines, on their o
 
 | Model ID | Group | Verified |
 | --- | --- | --- |
-| `qwen-plus-latest` | `qwen 官直0.8` | **49 keys** chat-200 during the mint; independent re-check **3/3** |
-| `deepseek-v4.1-flash` | `官转 0.8` | **3 keys** chat-200 (reasoning model — content may sit in `reasoning_content`) |
+| `qwen-plus-latest` | `qwen 官直0.8` | **chat-200** chat-200 during the mint; independent re-check (proxy exit) |
+| `deepseek-v4.1-flash` | `官转 0.8` | **chat-200** chat-200 (reasoning model — content may sit in `reasoning_content`) |
 
 ```bash
 curl https://24hoursapi.com/v1/chat/completions \
