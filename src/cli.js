@@ -298,7 +298,7 @@ async function newMailbox(exit) {
   return { rail: 'emailnator', dotted, plain: `${local.replace(/\./g, '')}@${domain}` };
 }
 
-async function pollCode(exit, box, { timeoutMs = 180000, pollMs = 5000 } = {}) {
+async function pollCode(exit, box, { timeoutMs = 300000, pollMs = 5000 } = {}) {
   const seen = new Set();
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -310,8 +310,13 @@ async function pollCode(exit, box, { timeoutMs = 180000, pollMs = 5000 } = {}) {
     for (const m of msgs) {
       if (seen.has(m.id)) continue;
       seen.add(m.id);
+      // emailnator hands out PUBLIC (shared) mailboxes: this list carries other panels'
+      // codes too, and grabbing one makes the panel answer "code incorrect". Measured:
+      // the panel's own mail lands ~3 min after sendCode (13:45:36 -> 13:48:47Z), so
+      // only a brand-matching message is accepted, and the window has to outlast that.
+      if (!/24hoursapi|h24api/i.test(`${m.subject || ''} ${m.from || ''}`)) continue;
       const r = await exitJson(exit, `${EMAILNATOR}/api/message/${encodeURIComponent(m.id)}`).catch(() => null);
-      const text = r ? r.body : '';
+      const text = r ? r.text : '';
       const code = (text.match(/(?:code|verification|验证码|kodu)[^\d]{0,24}(\d{4,8})/i) || text.match(/\b(\d{6})\b/));
       if (code) return { code: code[1], subject: m.subject || '' };
     }
@@ -418,7 +423,7 @@ async function mint() {
   const exits = loadExits();
   if (SCREEN) return void (await screen(exits));
   const accounts = loadAccounts();
-  log(`weytoken · ${COUNT} key(s) · conc ${CONC} · exits ${exits.filter(Boolean).length || 'direct'} · keys land in keys.txt`);
+  log(`24hoursapi · ${COUNT} key(s) · conc ${CONC} · exits ${exits.filter(Boolean).length || 'direct'} · keys land in keys.txt`);
   let made = 0;
   for (let round = 0; round < COUNT; round += CONC) {
     const jobs = [];
