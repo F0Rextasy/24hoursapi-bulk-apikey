@@ -11,7 +11,7 @@
 
 # 24hoursapi-bulk-apikey
 
-**Créer en masse des comptes 24hoursAPI avec des clés API générées automatiquement — inférence compatible OpenAI + connecteur 9Router.**
+**Créez en masse des comptes 24hoursAPI avec des clés API générées automatiquement — inférence compatible OpenAI + connecteur 9Router.**
 
 [![Node](https://img.shields.io/badge/Node-%E2%89%A518-3DA639?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Dependencies](https://img.shields.io/badge/dependencies-0-blue?style=for-the-badge)](#)
@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Démarrage rapide](#-quick-start) · [🎁 Offre gratuite](#-free-tier--how-much-you-get) · [🤖 Modèles](#-models--all-61-of-them) · [🧪 Utiliser l'API](#-how-to-use-the-api) · [✅ Vérifié](#-verified-working--every-key-is-tested) · [🧭 Comment ça marche](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [⚙️ Options](#️-cli-options) · [🛰️ Proxys](#️-behind-a-proxy) · [🐞 Problèmes](#-issues)
+[🛠 Démarrage rapide](#-quick-start) · [🎁 Niveau gratuit](#-free-tier--how-much-you-get) · [🤖 Modèles](#-models--all-61-of-them) · [🧪 Utiliser l'API](#-how-to-use-the-api) · [✅ Vérifié](#-verified-working--every-key-is-tested) · [🧭 Comment ça marche](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Options](#️-cli-options) · [🛰️ Proxys](#️-behind-a-proxy) · [🐞 Problèmes](#-issues)
 
 </div>
 
@@ -33,35 +33,35 @@
 
 ---
 
-## ✨ Pourquoi cet outil existe
+## ✨ Pourquoi ce projet existe
 
-24hoursAPI offre **1 000 000 d'unités de quota (≈ 2 $ à qpu=500 000) à chaque nouveau compte**, plus un check-in quotidien (+2 000…+9 752 mesurés). Le groupe `default` du panneau est **déprécié** (`403 分组 default 已被弃用`) — ses canaux actifs se trouvent dans **`qwen 官直0.8`** (`qwen-plus-latest`) et **`官转 0.8`** (`deepseek-v4.1-flash`, modèle de raisonnement). L'inscription se fait par e-mail + code, sans captcha ; le panneau ferme périodiquement les inscriptions côté admin, et cet outil le signale le cas échéant.
+24hoursAPI offre **1 000 000 d'unités de quota (≈ 2 $ à qpu=500 000) à chaque nouveau compte** plus un check-in quotidien (+2 000…+9 752 mesurés). Le groupe `default` du panneau est **obsolète** (`403 分组 default 已被弃用`) — ses canaux actifs se trouvent dans **`qwen 官直0.8`** (`qwen-plus-latest`) et **`官转 0.8`** (`deepseek-v4.1-flash`, modèle de raisonnement). L'inscription se fait par e-mail + code, sans captcha ; le panneau ferme périodiquement les inscriptions côté admin, et cet outil le signale lorsque cela se produit.
 
-## 🎁 Offre gratuite — ce que vous obtenez
+## 🎁 Niveau gratuit — ce que vous obtenez
 
 | Élément | Valeur |
 | --- | --- |
 | Crédit d'inscription | **1 000 000 d'unités ≈ 2 $** par compte (mesuré sur les 52 comptes ; qpu=500 000) |
 | Check-in quotidien | **+2 000 … +9 752 unités/jour** (versé sur 50 des 52 comptes de la voie) |
 | Groupes fonctionnels | **`qwen 官直0.8`** → `qwen-plus-latest` · **`官转 0.8`** → `deepseek-v4.1-flash` |
-| Groupe `default` | **déprécié sur ce fork** (`403 分组 default 已被弃用`) — les clés doivent être créées dans un groupe actif |
+| Groupe `default` | **obsolète sur ce fork** (`403 分组 default 已被弃用`) — les clés doivent être créées dans un groupe actif |
 | Inscription | e-mail + code à 6 caractères, **sans captcha** ; l'inscription peut être fermée par l'admin (`New user registration has been disabled by administrator`) — le CLI rapporte le corps exact |
-| Catalogue | 61 entrées de modèles sur la grille tarifaire en ligne |
+| Catalogue | 61 entrées de modèles sur la grille tarifaire en direct |
 
-> 💡 L'offre gratuite est définie par 24hoursAPI et peut changer. Consultez les chiffres en direct sur [24hoursapi.com](https://24hoursapi.com) — et laissez le contrôle de l'outil décider :
+> 💡 Le niveau gratuit est défini par 24hoursAPI et peut changer. Consultez les chiffres en direct sur [24hoursapi.com](https://24hoursapi.com) — et laissez le propre contrôle de l'outil décider :
 
 ```bash
 node src/cli.js --verify-only     # every key in keys.txt is re-tested with a real chat call
 ```
 
-## 🤖 Modèles — les 61
+## 🤖 Modèles — les 61 au complet
 
-Le catalogue en ligne contient **61 entrées de modèles**. Les deux lignes vérifiées, sur leurs propres groupes :
+Le catalogue en direct contient **61 entrées de modèles**. Les deux lignes vérifiées, sur leurs propres groupes :
 
 | ID du modèle | Groupe | Vérifié |
 | --- | --- | --- |
-| `qwen-plus-latest` | `qwen 官直0.8` | **49 clés** chat-200 pendant la génération ; re-vérification indépendante **3/3** |
-| `deepseek-v4.1-flash` | `官转 0.8` | **3 clés** chat-200 (modèle de raisonnement — le contenu peut se trouver dans `reasoning_content`) |
+| `qwen-plus-latest` | `qwen 官直0.8` | chaque clé chat-200 pendant la génération ; re-vérification indépendante **3/3** |
+| `deepseek-v4.1-flash` | `官转 0.8` | chaque clé chat-200 (modèle de raisonnement — le contenu peut se trouver dans `reasoning_content`) |
 
 ```bash
 curl https://24hoursapi.com/v1/chat/completions \
@@ -90,27 +90,33 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 # or: node src/cli.js --count 30    (check-in runs before the chat gate)
 ```
 
-Une clé n'est écrite dans `keys.txt` **qu'après** que `/v1/chat/completions` a répondu 200 avec du contenu réel ; `accounts.json` conserve username / e-mail / quotaStart → quotaAfterCheckin / groupe.
+Une clé n'est écrite dans `keys.txt` **qu'après** que `/v1/chat/completions` ait répondu 200 avec du contenu réel ; `accounts.json` conserve username / e-mail / quotaStart → quotaAfterCheckin / group.
 
 ### 🖱️ Le lanceur
 
-Le lanceur demande la liste de proxys (facultative — sans elle, le CLI fonctionne en direct) et le nombre, les mémorise, puis exécute le CLI — mint, verify, screen exits, settings, help, Connect to 9Router.
+Le lanceur demande la liste de proxys (facultative — sans elle, le CLI fonctionne en direct) et le nombre, les mémorise, et exécute le CLI — mint, verify, screen exits, settings, help, Connect to 9Router.
 
 ## ✅ Vérifié fonctionnel — chaque clé est testée
 
 | Vérification | Résultat |
 | --- | --- |
-| `GET /api/status` | **200** — vérification e-mail activée, check-in activé, captcha désactivé (ce fork ne publie pas `register_enabled` ; le corps de refus est le signal) |
+| `GET /api/status` | **200** — vérification e-mail activée, check-in activé, captcha désactivé (ce fork ne publie pas `register_enabled` ; le corps du refus est le signal) |
 | `POST /api/user/checkin` | **200** — le quota passe de 1 000 000 → jusqu'à 1 009 752 (50/52 comptes) |
 | `POST /api/token/` dans `qwen 官直0.8` / `官转 0.8` | **200** — clés renvoyées une seule fois |
-| `POST /v1/chat/completions` par clé avant écriture | **200** — 49× `qwen-plus-latest` + 3× `deepseek-v4.1-flash` |
+| `POST /v1/chat/completions` par clé avant son écriture | **200** — 49× `qwen-plus-latest` + 3× `deepseek-v4.1-flash` |
 | re-vérification indépendante (sortie fraîche, échantillon) | **3/3** clés `GET /v1/models` 200 + complétion `qwen-plus-latest` 200 |
-| panne côté panneau (observée pendant la reconstruction) | les appels chat ont répondu `500 Database error, please contact the administrator` — une défaillance **côté panneau** ; relancez `--verify-only` quand le panneau est sain |
+| panne côté panneau (observée pendant la reconstruction) | les appels chat ont répondu `500 Database error, please contact the administrator` — une défaillance **côté panneau** ; relancez `--verify-only` lorsque le panneau est sain |
 
 ```bash
 node src/cli.js --verify-only
 node src/cli.js --screen
 ```
+
+> **Contrôles qualité.** Chaque clé ici a passé un `chat-200` en direct avant d'être écrite dans `keys.txt`
+> (les clés mortes ne sont jamais livrées). Les combos de routeur suivent la même règle au niveau du modèle : une entrée n'est
+> ajoutée **que si le modèle répond `chat-200` et peut appeler des outils** — un modèle sans support des outils,
+> une clé morte ou un fournisseur mort est écarté au lieu d'être ajouté. Relancez l'étape de vérification à tout moment ;
+> les échecs sont signalés, jamais masqués.
 
 ## 🧭 Comment ça marche
 
@@ -126,13 +132,13 @@ inbox (one address per account)                                  a fresh address
 | Étape | Appel | Remarques |
 | --- | --- | --- |
 | status | `GET /api/status` | portes mail + check-in ; indicateur register non publié sur ce fork |
-| boîte mail | Emailnator `POST /api/generate-email` | après la limite Mailtrap de la flotte, gmail est le rail |
-| envoi du code | `GET /api/verification?email=…` | code à 6 caractères |
-| inscription | `POST /api/user/register` | quand l'admin ferme les inscriptions, le corps le dit textuellement |
-| connexion | `POST /api/user/login` | jeton de session |
+| mailbox | Emailnator `POST /api/generate-email` | après la limite Mailtrap de la flotte, gmail est le rail |
+| send code | `GET /api/verification?email=…` | code à 6 caractères |
+| register | `POST /api/user/register` | lorsque l'admin ferme les inscriptions, le corps le dit textuellement |
+| login | `POST /api/user/login` | jeton de session |
 | **check-in** | `POST /api/user/checkin` | bonus quotidien en plus du crédit d'inscription de 2 $ |
-| clé | `POST /api/token/` dans `qwen 官直0.8` (repli `官转 0.8`) | le parcours des groupes rattrape les tirages vides du groupe principal |
-| preuve | `POST /v1/chat/completions` | 200 avec contenu = la clé est active |
+| key | `POST /api/token/` dans `qwen 官直0.8` (repli `官转 0.8`) | le parcours des groupes rattrape les tirages vides du groupe principal |
+| proof | `POST /v1/chat/completions` | 200 avec contenu = la clé est active |
 
 ## ⚙️ Options du CLI
 
@@ -147,15 +153,15 @@ node src/cli.js --help
 
 | Env | Défaut | Signification |
 | --- | --- | --- |
-| `H24API_PROXIES` | `proxies.txt` | pool de sorties, une ligne par proxy — facultatif : sans pool, le CLI se connecte directement |
+| `H24API_PROXIES` | `proxies.txt` | pool de sortie, une ligne par proxy — facultatif : sans pool, le CLI se connecte directement |
 | `H24API_MODEL` | `qwen-plus-latest` | modèle pour la vérification en direct |
 
 ## 🛰️ Derrière un proxy
 
 **Facultatif — recommandé à grande échelle (limites par IP, bannissements).** L'outil fonctionne aussi sans proxy.
 
-- **Avec un pool :** passez `--pool <file>` (ou définissez `H24API_PROXIES`) et chaque requête passe par une sortie de cette liste — une ligne morte fait échouer cette tentative et le CLI réessaie avec la sortie suivante (register/login sont limités en débit : `login 429` en rafale).
-- **Sans pool :** le CLI affiche `running WITHOUT a proxy (direct)` et se connecte directement. Rien ne change pour l'inscription, le check-in, la génération de clés ou la vérification — seul le point de sortie des paquets diffère.
+- **Avec un pool :** passez `--pool <file>` (ou définissez `H24API_PROXIES`) et chaque requête passe par une sortie de cette liste — une ligne morte fait échouer cette tentative et le CLI réessaie avec la sortie suivante (register/login sont limités en débit : `login 429` en cas de rafales).
+- **Sans pool :** le CLI affiche `running WITHOUT a proxy (direct)` et se connecte directement. Rien ne change pour l'inscription, le check-in, la génération de clés ou la vérification — seul le point de départ des paquets change.
 - Lancez `--screen` dans l'un ou l'autre mode : il teste les sorties dont vous disposez (ou la route directe) contre 24hoursAPI avant une exécution réelle.
 
 ## 📄 Fichiers
@@ -163,29 +169,30 @@ node src/cli.js --help
 | Chemin | Contenu |
 | --- | --- |
 | `keys.txt` | une clé vérifiée en direct par ligne — ignoré par git |
-| `accounts.json` | username / e-mail / quotaStart / quotaAfterCheckin / groupe |
+| `accounts.json` | username / e-mail / quotaStart / quotaAfterCheckin / group |
 | `proxies.txt` | vos sorties — ignoré par git |
 | `outputs/` | journaux d'exécution — ignorés par git |
 
-## 🔌 Connexion à 9Router
+## 🔌 Se connecter à 9Router
 
-[9Router](https://9router.com) est un routeur auto-hébergé compatible OpenAI :
+[9Router](https://9router.com) est un routeur auto-hébergé, compatible OpenAI :
 
 ```bash
 node src/connect-9router.js --base http://localhost:20128 --password 123456
 ```
 
-Valeurs par défaut : `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Les modèles sont servis sous `24hoursapi/<model id>`.
+Défauts : `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Les modèles sont servis sous `24hoursapi/<model id>`.
 
-## 🔌 Connexion à OmniRoute
+## 🔌 Se connecter à OmniRoute
 
-[OmniRoute](https://omniroute.online) est un routeur auto-hébergé compatible OpenAI :
+[OmniRoute](https://omniroute.online) est un routeur auto-hébergé, compatible OpenAI :
 
 ```bash
 node src/connect-omniroute.js --base http://localhost:20128 --password 123456
 ```
 
-Valeurs par défaut : `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Les modèles sont servis sous `24hoursapi/<model id>`.
+Défauts : `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Les modèles sont servis sous `24hoursapi/<model id>`.
+
 ## 🔑 Ce qu'une clé vous apporte
 
 | | |
@@ -194,11 +201,11 @@ Valeurs par défaut : `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/
 | 🎁 Ce que le fournisseur offre | **2 $ (1 000 000 d'unités)** à l'inscription + check-in quotidien |
 | 🔑 Ce qu'une clé vous apporte | une clé sur son propre compte dans `qwen 官直0.8` / `官转 0.8`, vérifiée par chat |
 | 🌐 Forme de l'API | compatible OpenAI : `POST https://24hoursapi.com/v1/chat/completions` |
-| 🔒 Vos données | seuls `24hoursapi.com` et votre backend de boîte mail sont contactés |
+| 🔒 Vos données | seuls `24hoursapi.com` et votre backend de boîte de réception sont contactés |
 
 ## 🐞 Problèmes
 
-Si 24hoursAPI ferme les inscriptions, change ses groupes ou modifie la récompense de check-in, l'outil s'arrête et le signale. **[Ouvrez un ticket](../../issues)** avec la commande et la sortie exacte.
+Si 24hoursAPI ferme les inscriptions, change ses groupes ou modifie la récompense de check-in, l'outil s'arrête là et le signale. **[Ouvrez un ticket](../../issues)** avec la commande et la sortie exacte.
 
 ## 📄 Licence
 

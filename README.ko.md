@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 빠른 시작](#-quick-start) · [🎁 무료 티어](#-free-tier--how-much-you-get) · [🤖 모델](#-models--all-61-of-them) · [🧪 API 사용하기](#-how-to-use-the-api) · [✅ 검증됨](#-verified-working--every-key-is-tested) · [🧭 작동 방식](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [⚙️ 옵션](#️-cli-options) · [🛰️ 프록시](#️-behind-a-proxy) · [🐞 이슈](#-issues)
+[🛠 빠른 시작](#-quick-start) · [🎁 무료 티어](#-free-tier--how-much-you-get) · [🤖 모델](#-models--all-61-of-them) · [🧪 API 사용하기](#-how-to-use-the-api) · [✅ 검증됨](#-verified-working--every-key-is-tested) · [🧭 작동 방식](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ 옵션](#️-cli-options) · [🛰️ 프록시](#️-behind-a-proxy) · [🐞 이슈](#-issues)
 
 </div>
 
@@ -33,20 +33,20 @@
 
 ---
 
-## ✨ 이 도구가 존재하는 이유
+## ✨ 왜 이게 필요한가
 
-24hoursAPI는 **모든 신규 계정에 1,000,000 할당량 단위(≈ $2, qpu=500,000 기준)** 를 지급하며, 여기에 매일 출석 체크(+2,000…+9,752 측정됨)가 더해집니다. 패널의 `default` 그룹은 **더 이상 사용되지 않습니다**(`403 分组 default 已被弃用`) — 활성 채널은 **`qwen 官直0.8`**(`qwen-plus-latest`)과 **`官转 0.8`**(`deepseek-v4.1-flash`, 추론 모델)에 있습니다. 가입은 이메일 + 코드 방식이며 캡차가 없습니다. 패널은 관리자 측에서 주기적으로 가입을 닫으며, 이 도구는 그런 경우 이를 알려줍니다.
+24hoursAPI는 **모든 신규 계정에 1,000,000 할당량 단위(qpu=500,000 기준 약 $2)** 를 지급하고, 여기에 일일 체크인(+2,000…+9,752 측정됨)을 더해 줍니다. 패널의 `default` 그룹은 **더 이상 사용되지 않으며**(`403 分组 default 已被弃用`) — 실제 활성 채널은 **`qwen 官直0.8`**(`qwen-plus-latest`)과 **`官转 0.8`**(`deepseek-v4.1-flash`, 추론 모델)에 있습니다. 가입은 이메일 + 코드 방식이며 캡차가 없습니다. 패널은 관리자 측에서 주기적으로 가입을 닫는데, 이 도구는 그런 경우 그 사실을 알려줍니다.
 
 ## 🎁 무료 티어 — 얼마나 받을 수 있나
 
 | 항목 | 값 |
 | --- | --- |
-| 가입 크레딧 | 계정당 **1,000,000 단위 ≈ $2** (52개 계정 모두에서 측정됨; qpu=500,000) |
-| 매일 출석 체크 | **+2,000 … +9,752 단위/일** (해당 레인의 52개 계정 중 50개에서 지급됨) |
+| 가입 크레딧 | 계정당 **1,000,000 단위 ≈ $2** (52개 계정 전부에서 측정됨; qpu=500,000) |
+| 일일 체크인 | **+2,000 … +9,752 단위/일** (해당 레인의 52개 계정 중 50개에서 지급됨) |
 | 작동하는 그룹 | **`qwen 官直0.8`** → `qwen-plus-latest` · **`官转 0.8`** → `deepseek-v4.1-flash` |
-| `default` 그룹 | **이 포크에서는 더 이상 사용되지 않음** (`403 分组 default 已被弃用`) — 키는 활성 그룹에서 생성해야 함 |
-| 가입 | 이메일 + 6자리 코드, **캡차 없음**; 관리자가 가입을 닫을 수 있음 (`New user registration has been disabled by administrator`) — CLI가 정확한 본문을 보고함 |
-| 카탈로그 | 라이브 가격표에 61개 모델 항목 |
+| `default` 그룹 | **이 포크에서는 더 이상 사용되지 않음**(`403 分组 default 已被弃用`) — 키는 활성 그룹에서 생성해야 함 |
+| 가입 | 이메일 + 6자리 코드, **캡차 없음**; 관리자가 가입을 닫을 수 있음(`New user registration has been disabled by administrator`) — CLI가 정확한 응답 본문을 보고함 |
+| 카탈로그 | 실시간 가격표에 61개 모델 항목 |
 
 > 💡 무료 티어는 24hoursAPI가 정하며 변경될 수 있습니다. 실시간 수치는 [24hoursapi.com](https://24hoursapi.com)에서 확인하세요 — 그리고 도구 자체의 게이트가 판단하게 하세요:
 
@@ -56,12 +56,12 @@ node src/cli.js --verify-only     # every key in keys.txt is re-tested with a re
 
 ## 🤖 모델 — 61개 전부
 
-라이브 카탈로그에는 **61개 모델 항목**이 있습니다. 각자의 그룹에서 검증된 두 라인:
+실시간 카탈로그에는 **61개 모델 항목**이 있습니다. 각자의 그룹에 있는 두 개의 검증된 라인:
 
 | 모델 ID | 그룹 | 검증됨 |
 | --- | --- | --- |
-| `qwen-plus-latest` | `qwen 官直0.8` | 발급 중 **49개 키** chat-200; 독립 재확인 **3/3** |
-| `deepseek-v4.1-flash` | `官转 0.8` | **3개 키** chat-200 (추론 모델 — 콘텐츠가 `reasoning_content`에 있을 수 있음) |
+| `qwen-plus-latest` | `qwen 官直0.8` | 발급 중 모든 키가 chat-200; 독립 재확인 **3/3** |
+| `deepseek-v4.1-flash` | `官转 0.8` | 모든 키가 chat-200 (추론 모델 — 콘텐츠가 `reasoning_content`에 있을 수 있음) |
 
 ```bash
 curl https://24hoursapi.com/v1/chat/completions \
@@ -90,27 +90,33 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 # or: node src/cli.js --count 30    (check-in runs before the chat gate)
 ```
 
-키는 `/v1/chat/completions`가 실제 콘텐츠와 함께 200을 응답한 **후에만** `keys.txt`에 기록됩니다. `accounts.json`은 사용자 이름 / 이메일 / quotaStart → quotaAfterCheckin / 그룹을 보관합니다.
+키는 `/v1/chat/completions`가 실제 콘텐츠와 함께 200을 응답한 **후에만** `keys.txt`에 기록됩니다. `accounts.json`은 username / e-mail / quotaStart → quotaAfterCheckin / group을 보관합니다.
 
 ### 🖱️ 런처
 
-런처는 프록시 목록(선택 사항 — 없으면 CLI는 직접 연결로 실행됨)과 개수를 묻고, 이를 기억한 뒤 CLI를 실행합니다 — 발급, 검증, 출구 스크리닝, 설정, 도움말, 9Router 연결.
+런처는 프록시 목록(선택 사항 — 없으면 CLI는 직접 연결로 실행됨)과 개수를 물어보고, 이를 기억한 뒤 CLI를 실행합니다 — 발급, 검증, 종료 화면, 설정, 도움말, 9Router 연결.
 
-## ✅ 작동 검증됨 — 모든 키가 테스트됨
+## ✅ 검증된 작동 — 모든 키가 테스트됨
 
 | 검사 | 결과 |
 | --- | --- |
-| `GET /api/status` | **200** — 이메일 인증 켜짐, 출석 체크 켜짐, 캡차 꺼짐 (이 포크는 `register_enabled`를 공개하지 않음; 거부 본문이 신호임) |
-| `POST /api/user/checkin` | **200** — 할당량이 1,000,000 → 최대 1,009,752로 이동 (52개 계정 중 50개) |
+| `GET /api/status` | **200** — 이메일 인증 켜짐, 체크인 켜짐, 캡차 꺼짐 (이 포크는 `register_enabled`를 공개하지 않음; 거부 응답 본문이 신호임) |
+| `POST /api/user/checkin` | **200** — 할당량이 1,000,000 → 최대 1,009,752로 이동 (50/52 계정) |
 | `qwen 官直0.8` / `官转 0.8`에서 `POST /api/token/` | **200** — 키가 한 번 반환됨 |
 | 기록되기 전 각 키에 대한 `POST /v1/chat/completions` | **200** — 49× `qwen-plus-latest` + 3× `deepseek-v4.1-flash` |
-| 독립 재확인 (새 출구, 샘플) | **3/3** 키 `GET /v1/models` 200 + `qwen-plus-latest` 완성 200 |
-| 패널 측 장애 (재구축 중 관찰됨) | 채팅 호출이 `500 Database error, please contact the administrator`를 응답함 — **패널 측** 실패; 패널이 정상일 때 `--verify-only`를 다시 실행하세요 |
+| 독립 재확인 (새 종료점, 샘플) | **3/3** 키 `GET /v1/models` 200 + `qwen-plus-latest` 완성 200 |
+| 패널 측 장애 (재구축 중 관찰됨) | 채팅 호출이 `500 Database error, please contact the administrator`를 응답 — **패널 측** 실패; 패널이 정상일 때 `--verify-only`를 다시 실행하세요 |
 
 ```bash
 node src/cli.js --verify-only
 node src/cli.js --screen
 ```
+
+> **품질 게이트.** 여기 있는 모든 키는 `keys.txt`에 기록되기 전에 실시간 `chat-200`을 통과했습니다
+> (죽은 키는 절대 배포되지 않습니다). 라우터 조합도 모델 수준에서 같은 규칙을 따릅니다: 항목은
+> **모델이 `chat-200`을 응답하고 도구 호출이 가능한 경우에만** 추가됩니다 — 도구 지원이 없는 모델,
+> 죽은 키 또는 죽은 제공자는 추가되지 않고 제거됩니다. 언제든지 검증 단계를 다시 실행하세요;
+> 실패는 보고되며, 절대 숨겨지지 않습니다.
 
 ## 🧭 작동 방식
 
@@ -125,14 +131,14 @@ inbox (one address per account)                                  a fresh address
 
 | 단계 | 호출 | 비고 |
 | --- | --- | --- |
-| status | `GET /api/status` | 메일 + 출석 체크 게이트; 이 포크에서는 register 플래그가 공개되지 않음 |
-| mailbox | Emailnator `POST /api/generate-email` | 플릿의 Mailtrap 한도 이후, gmail이 레일임 |
-| send code | `GET /api/verification?email=…` | 6자리 코드 |
-| register | `POST /api/user/register` | 관리자가 가입을 닫으면 본문이 그대로 알려줌 |
-| login | `POST /api/user/login` | 세션 토큰 |
-| **check-in** | `POST /api/user/checkin` | $2 가입 크레딧 위에 매일 보너스 |
-| key | `qwen 官直0.8`에서 `POST /api/token/` (대체 `官转 0.8`) | 그룹 순회로 빈 기본 그룹 배정을 잡아냄 |
-| proof | `POST /v1/chat/completions` | 콘텐츠와 함께 200 = 키가 활성 상태 |
+| 상태 | `GET /api/status` | 메일 + 체크인 게이트; 이 포크에서는 register 플래그가 공개되지 않음 |
+| 메일박스 | Emailnator `POST /api/generate-email` | 플릿의 Mailtrap 한도 이후, gmail이 레일임 |
+| 코드 전송 | `GET /api/verification?email=…` | 6자리 코드 |
+| 가입 | `POST /api/user/register` | 관리자가 가입을 닫으면, 응답 본문이 그대로 알려줌 |
+| 로그인 | `POST /api/user/login` | 세션 토큰 |
+| **체크인** | `POST /api/user/checkin` | $2 가입 크레딧 위에 일일 보너스 |
+| 키 | `qwen 官直0.8`에서 `POST /api/token/` (대체 `官转 0.8`) | 그룹 순회로 빈 기본 그룹 배정을 잡아냄 |
+| 증명 | `POST /v1/chat/completions` | 콘텐츠와 함께 200 = 키가 살아 있음 |
 
 ## ⚙️ CLI 옵션
 
@@ -147,24 +153,24 @@ node src/cli.js --help
 
 | 환경 변수 | 기본값 | 의미 |
 | --- | --- | --- |
-| `H24API_PROXIES` | `proxies.txt` | 출구 풀, 프록시당 한 줄 — 선택 사항: 풀이 없으면 CLI는 직접 연결 |
-| `H24API_MODEL` | `qwen-plus-latest` | 라이브 검증에 사용할 모델 |
+| `H24API_PROXIES` | `proxies.txt` | 종료점 풀, 프록시당 한 줄 — 선택 사항: 풀이 없으면 CLI는 직접 연결 |
+| `H24API_MODEL` | `qwen-plus-latest` | 실시간 검증에 사용할 모델 |
 
 ## 🛰️ 프록시 뒤에서
 
-**선택 사항 — 대규모에서는 권장됨 (IP당 제한, 차단).** 이 도구는 프록시 없이도 작동합니다.
+**선택 사항 — 대규모에서는 권장됨 (IP별 제한, 차단).** 이 도구는 프록시 없이도 작동합니다.
 
-- **풀이 있는 경우:** `--pool <file>`을 전달하거나 `H24API_PROXIES`를 설정하면 모든 요청이 해당 목록의 출구를 통해 나갑니다 — 죽은 회선은 해당 시도를 실패시키고 CLI는 다음 출구로 재시도합니다 (register/login은 속도 제한이 있음: 버스트 시 `login 429`).
-- **풀이 없는 경우:** CLI는 `running WITHOUT a proxy (direct)`를 출력하고 직접 연결합니다. 가입, 출석 체크, 키 발급, 검증에는 아무 변화가 없습니다 — 패킷이 나가는 위치만 달라집니다.
-- 어느 모드에서든 `--screen`을 실행하세요: 실제 실행 전에 보유한 출구(또는 직접 경로)를 24hoursAPI에 대해 테스트합니다.
+- **풀이 있을 때:** `--pool <file>`을 전달하거나 `H24API_PROXIES`를 설정하면 모든 요청이 해당 목록의 종료점을 통해 나갑니다 — 죽은 회선은 해당 시도를 실패시키고 CLI는 다음 종료점으로 재시도합니다 (register/login은 속도 제한이 있음: 버스트 시 `login 429`).
+- **풀이 없을 때:** CLI는 `running WITHOUT a proxy (direct)`를 출력하고 직접 연결합니다. 가입, 체크인, 키 발급 또는 검증에 대해 달라지는 것은 없습니다 — 패킷이 나가는 위치만 달라집니다.
+- 두 모드 모두에 대해 `--screen`을 실행하세요: 실제 실행 전에 보유한 종료점(또는 직접 경로)을 24hoursAPI에 대해 테스트합니다.
 
 ## 📄 파일
 
 | 경로 | 내용 |
 | --- | --- |
-| `keys.txt` | 라이브 검증된 키 한 줄에 하나 — git-ignored |
-| `accounts.json` | 사용자 이름 / 이메일 / quotaStart / quotaAfterCheckin / 그룹 |
-| `proxies.txt` | 사용자의 출구 — git-ignored |
+| `keys.txt` | 한 줄에 하나씩 실시간 검증된 키 — git-ignored |
+| `accounts.json` | username / e-mail / quotaStart / quotaAfterCheckin / group |
+| `proxies.txt` | 사용자의 종료점 — git-ignored |
 | `outputs/` | 실행 로그 — git-ignored |
 
 ## 🔌 9Router에 연결
@@ -186,19 +192,20 @@ node src/connect-omniroute.js --base http://localhost:20128 --password 123456
 ```
 
 기본값: `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. 모델은 `24hoursapi/<model id>`로 제공됩니다.
+
 ## 🔑 키 하나로 얻는 것
 
 | | |
 | --- | --- |
 | 🏢 제공자 | **24hoursAPI** — [24hoursapi.com](https://24hoursapi.com) |
-| 🎁 제공자가 주는 것 | 가입 시 **$2 (1,000,000 단위)** + 매일 출석 체크 |
-| 🔑 키 하나로 얻는 것 | `qwen 官直0.8` / `官转 0.8`에서 자체 계정의 키 하나, 채팅 검증됨 |
+| 🎁 제공자가 주는 것 | 가입 시 **$2 (1,000,000 단위)** + 일일 체크인 |
+| 🔑 키 하나로 얻는 것 | `qwen 官直0.8` / `官转 0.8`에서 자체 계정에 있는 키 하나, 채팅 검증됨 |
 | 🌐 API 형태 | OpenAI 호환: `POST https://24hoursapi.com/v1/chat/completions` |
-| 🔒 데이터 | `24hoursapi.com`과 사용자의 받은편지함 백엔드만 접촉됨 |
+| 🔒 사용자 데이터 | `24hoursapi.com`과 사용자의 메일박스 백엔드만 접촉됨 |
 
 ## 🐞 이슈
 
-24hoursAPI가 가입을 닫거나, 그룹을 변경하거나, 출석 체크 보상을 교체하면 도구는 그 지점에서 멈추고 그 사실을 알려줍니다. 명령과 정확한 출력을 포함하여 **[이슈를 열어주세요](../../issues)**.
+24hoursAPI가 가입을 닫거나, 그룹을 변경하거나, 체크인 보상을 바꾸면 도구는 그 지점에서 멈추고 그 사실을 알려줍니다. 명령과 정확한 출력을 함께 **[이슈를 열어주세요](../../issues)**.
 
 ## 📄 라이선스
 

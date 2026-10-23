@@ -13,7 +13,7 @@
  * Usage:
  *   node src/connect-9router.js \
  *     --base http://localhost:20128 --password 123456 \
- *     --api-key JnSI3L…(48-char) [--name "24hoursAPI"] [--prefix 24hoursapi]
+ *     --api-key YOUR_KEY [--name "24hoursAPI"] [--prefix 24hoursapi]
  *
  *   node src/connect-9router.js                  # register every key in keys.txt
  *   node src/connect-9router.js --model <id>     # pin the connection's default model
@@ -25,7 +25,7 @@
  *   --name <name>      provider-node name       (default 24hoursAPI)
  *   --prefix <slug>    provider prefix in 9Router (default 24hoursapi)
  *   --base-url <url>   provider base URL        (default https://24hoursapi.com/v1)
- *   --model <id>       connection default model (default MiniMaxAI/MiniMax-M2.7)
+ *   --model <id>       connection default model (default: provider's default model)
  *
  * Zero dependencies. Node.js >= 18.
  */
@@ -33,7 +33,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const UA = '24hoursapi-bulk-9router-connector/1.0';
+const UA = '24hoursapi-bulk-9router-connector/1.0'
 
 const DEFAULTS = {
   base: 'http://localhost:20128',

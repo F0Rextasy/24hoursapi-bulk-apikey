@@ -21,7 +21,7 @@
 [![OmniRoute](https://img.shields.io/badge/OmniRoute-connector-8B5CF6?style=for-the-badge)](#-connect-to-omniroute)
 [![X](https://img.shields.io/badge/X-%40bigbullapp-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/bigbullapp)
 
-[🛠 Inicio rápido](#-quick-start) · [🎁 Nivel gratuito](#-free-tier--how-much-you-get) · [🤖 Modelos](#-models--all-61-of-them) · [🧪 Usa la API](#-how-to-use-the-api) · [✅ Verificado](#-verified-working--every-key-is-tested) · [🧭 Cómo funciona](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [⚙️ Opciones](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Problemas](#-issues)
+[🛠 Inicio rápido](#-quick-start) · [🎁 Nivel gratuito](#-free-tier--how-much-you-get) · [🤖 Modelos](#-models--all-61-of-them) · [🧪 Usa la API](#-how-to-use-the-api) · [✅ Verificado](#-verified-working--every-key-is-tested) · [🧭 Cómo funciona](#-how-it-works) · [🔌 9Router](#-connect-to-9router) · [🔌 OmniRoute](#-connect-to-omniroute) · [⚙️ Opciones](#️-cli-options) · [🛰️ Proxies](#️-behind-a-proxy) · [🐞 Problemas](#-issues)
 
 </div>
 
@@ -35,7 +35,7 @@
 
 ## ✨ Por qué existe esto
 
-24hoursAPI reparte **1.000.000 de unidades de cuota (≈ $2 con qpu=500.000) a cada cuenta nueva** más un check-in diario (+2.000…+9.752 medidos). El grupo `default` del panel está **obsoleto** (`403 分组 default 已被弃用`) — sus canales activos están en **`qwen 官直0.8`** (`qwen-plus-latest`) y **`官转 0.8`** (`deepseek-v4.1-flash`, modelo de razonamiento). El registro es correo electrónico + código, sin captcha; el panel cierra periódicamente los registros desde el lado del administrador, y esta herramienta lo indica cuando ocurre.
+24hoursAPI entrega **1.000.000 de unidades de cuota (≈ $2 con qpu=500.000) a cada cuenta nueva** más un check-in diario (+2.000…+9.752 medidos). El grupo `default` del panel está **obsoleto** (`403 分组 default 已被弃用`) — sus canales activos están en **`qwen 官直0.8`** (`qwen-plus-latest`) y **`官转 0.8`** (`deepseek-v4.1-flash`, modelo de razonamiento). El registro es correo electrónico + código, sin captcha; el panel cierra periódicamente los registros desde el lado del administrador, y esta herramienta lo indica cuando ocurre.
 
 ## 🎁 Nivel gratuito — cuánto obtienes
 
@@ -43,12 +43,12 @@
 | --- | --- |
 | Crédito de registro | **1.000.000 de unidades ≈ $2** por cuenta (medido en las 52 cuentas; qpu=500.000) |
 | Check-in diario | **+2.000 … +9.752 unidades/día** (pagado en 50 de 52 cuentas del carril) |
-| Grupos activos | **`qwen 官直0.8`** → `qwen-plus-latest` · **`官转 0.8`** → `deepseek-v4.1-flash` |
+| Grupos funcionales | **`qwen 官直0.8`** → `qwen-plus-latest` · **`官转 0.8`** → `deepseek-v4.1-flash` |
 | Grupo `default` | **obsoleto en este fork** (`403 分组 default 已被弃用`) — las claves deben crearse en un grupo activo |
-| Registro | correo electrónico + código de 6 caracteres, **sin captcha**; el registro puede cerrarse por el administrador (`New user registration has been disabled by administrator`) — la CLI informa el cuerpo exacto |
-| Catálogo | 61 entradas de modelos en la hoja de precios activa |
+| Registro | correo electrónico + código de 6 caracteres, **sin captcha**; el registro puede ser cerrado por el administrador (`New user registration has been disabled by administrator`) — la CLI reporta el cuerpo exacto |
+| Catálogo | 61 entradas de modelos en la hoja de precios en vivo |
 
-> 💡 El nivel gratuito lo define 24hoursAPI y puede cambiar. Consulta los números activos en [24hoursapi.com](https://24hoursapi.com) — y deja que la propia puerta de la herramienta decida:
+> 💡 El nivel gratuito lo define 24hoursAPI y puede cambiar. Consulta los números en vivo en [24hoursapi.com](https://24hoursapi.com) — y deja que la propia puerta de la herramienta decida:
 
 ```bash
 node src/cli.js --verify-only     # every key in keys.txt is re-tested with a real chat call
@@ -56,12 +56,12 @@ node src/cli.js --verify-only     # every key in keys.txt is re-tested with a re
 
 ## 🤖 Modelos — los 61
 
-El catálogo activo contiene **61 entradas de modelos**. Ambas líneas verificadas, en sus propios grupos:
+El catálogo en vivo contiene **61 entradas de modelos**. Ambas líneas verificadas, en sus propios grupos:
 
 | ID del modelo | Grupo | Verificado |
 | --- | --- | --- |
-| `qwen-plus-latest` | `qwen 官直0.8` | **49 claves** chat-200 durante la creación; reverificación independiente **3/3** |
-| `deepseek-v4.1-flash` | `官转 0.8` | **3 claves** chat-200 (modelo de razonamiento — el contenido puede estar en `reasoning_content`) |
+| `qwen-plus-latest` | `qwen 官直0.8` | cada clave chat-200 durante la creación; reverificación independiente **3/3** |
+| `deepseek-v4.1-flash` | `官转 0.8` | cada clave chat-200 (modelo de razonamiento — el contenido puede estar en `reasoning_content`) |
 
 ```bash
 curl https://24hoursapi.com/v1/chat/completions \
@@ -90,19 +90,19 @@ node src/launcher.js        # interactive: mint / verify / screen / settings
 # or: node src/cli.js --count 30    (check-in runs before the chat gate)
 ```
 
-Una clave se escribe en `keys.txt` **solo** después de que `/v1/chat/completions` responda 200 con contenido real; `accounts.json` conserva usuario / correo electrónico / quotaStart → quotaAfterCheckin / grupo.
+Una clave se escribe en `keys.txt` **solo** después de que `/v1/chat/completions` responda 200 con contenido real; `accounts.json` conserva username / correo electrónico / quotaStart → quotaAfterCheckin / grupo.
 
 ### 🖱️ El lanzador
 
-El lanzador solicita la lista de proxies (opcional — sin una, la CLI se ejecuta directamente) y la cantidad, las recuerda y ejecuta la CLI — crear, verificar, revisar salidas, configuración, ayuda, Conectar a 9Router.
+El lanzador solicita la lista de proxies (opcional — sin una, la CLI se ejecuta directo) y la cantidad, las recuerda y ejecuta la CLI — crear, verificar, probar salidas, ajustes, ayuda, Conectar a 9Router.
 
 ## ✅ Verificado y funcionando — cada clave se prueba
 
 | Comprobación | Resultado |
 | --- | --- |
 | `GET /api/status` | **200** — verificación por correo activada, check-in activado, captcha desactivado (este fork no publica `register_enabled`; el cuerpo de rechazo es la señal) |
-| `POST /api/user/checkin` | **200** — la cuota pasa de 1.000.000 → hasta 1.009.752 (50/52 cuentas) |
-| `POST /api/token/` en `qwen 官直0.8` / `官转 0.8` | **200** — las claves se devuelven una vez |
+| `POST /api/user/checkin` | **200** — la cuota pasa de 1.000.000 a hasta 1.009.752 (50/52 cuentas) |
+| `POST /api/token/` en `qwen 官直0.8` / `官转 0.8` | **200** — claves devueltas una vez |
 | `POST /v1/chat/completions` por clave antes de escribirse | **200** — 49× `qwen-plus-latest` + 3× `deepseek-v4.1-flash` |
 | reverificación independiente (salida nueva, muestra) | **3/3** claves `GET /v1/models` 200 + finalización `qwen-plus-latest` 200 |
 | caída del lado del panel (observada durante la reconstrucción) | las llamadas de chat respondieron `500 Database error, please contact the administrator` — un fallo **del lado del panel**; vuelve a ejecutar `--verify-only` cuando el panel esté sano |
@@ -111,6 +111,12 @@ El lanzador solicita la lista de proxies (opcional — sin una, la CLI se ejecut
 node src/cli.js --verify-only
 node src/cli.js --screen
 ```
+
+> **Puertas de calidad.** Cada clave aquí pasó un `chat-200` en vivo antes de escribirse en `keys.txt`
+> (las claves muertas nunca se entregan). Las combinaciones del router siguen la misma regla a nivel de modelo: una entrada se
+> añade **solo si el modelo responde `chat-200` y puede llamar herramientas** — un modelo sin soporte de herramientas,
+> una clave muerta o un proveedor muerto se descarta en lugar de añadirse. Vuelve a ejecutar el paso de verificación cuando quieras;
+> los fallos se reportan, nunca se ocultan.
 
 ## 🧭 Cómo funciona
 
@@ -125,7 +131,7 @@ inbox (one address per account)                                  a fresh address
 
 | Paso | Llamada | Notas |
 | --- | --- | --- |
-| estado | `GET /api/status` | puertas de correo + check-in; indicador de registro no publicado en este fork |
+| estado | `GET /api/status` | puertas de correo + check-in; flag de registro no publicado en este fork |
 | buzón | Emailnator `POST /api/generate-email` | tras el límite de Mailtrap de la flota, gmail es el carril |
 | enviar código | `GET /api/verification?email=…` | código de 6 caracteres |
 | registrar | `POST /api/user/register` | cuando el administrador cierra los registros, el cuerpo lo dice textualmente |
@@ -147,15 +153,15 @@ node src/cli.js --help
 
 | Variable de entorno | Predeterminado | Significado |
 | --- | --- | --- |
-| `H24API_PROXIES` | `proxies.txt` | grupo de salidas, una línea por proxy — opcional: sin un grupo, la CLI se conecta directamente |
+| `H24API_PROXIES` | `proxies.txt` | pool de salidas, una línea por proxy — opcional: sin un pool la CLI se conecta directamente |
 | `H24API_MODEL` | `qwen-plus-latest` | modelo para la verificación en vivo |
 
 ## 🛰️ Detrás de un proxy
 
 **Opcional — recomendado a escala (límites por IP, bloqueos).** La herramienta también funciona sin proxy.
 
-- **Con un grupo:** pasa `--pool <file>` (o define `H24API_PROXIES`) y cada solicitud pasa por una salida de esa lista — una línea muerta falla ese intento y la CLI reintenta con la siguiente salida (registro/inicio de sesión tienen límite de velocidad: `login 429` en ráfagas).
-- **Sin un grupo:** la CLI imprime `running WITHOUT a proxy (direct)` y se conecta directamente. Nada del registro, check-in, creación de claves o verificación cambia — solo desde dónde salen los paquetes.
+- **Con un pool:** pasa `--pool <file>` (o define `H24API_PROXIES`) y cada solicitud pasa por una salida de esa lista — una línea muerta hace fallar ese intento y la CLI reintenta con la siguiente salida (register/login tienen límite de tasa: `login 429` en ráfagas).
+- **Sin un pool:** la CLI imprime `running WITHOUT a proxy (direct)` y se conecta directamente. Nada del registro, check-in, creación de claves o verificación cambia — solo desde dónde salen los paquetes.
 - Ejecuta `--screen` en cualquiera de los dos modos: prueba las salidas que tengas (o la ruta directa) contra 24hoursAPI antes de una ejecución real.
 
 ## 📄 Archivos
@@ -163,29 +169,30 @@ node src/cli.js --help
 | Ruta | Contenido |
 | --- | --- |
 | `keys.txt` | una clave verificada en vivo por línea — ignorada por git |
-| `accounts.json` | usuario / correo electrónico / quotaStart / quotaAfterCheckin / grupo |
+| `accounts.json` | username / correo electrónico / quotaStart / quotaAfterCheckin / grupo |
 | `proxies.txt` | tus salidas — ignorado por git |
 | `outputs/` | registros de ejecución — ignorados por git |
 
 ## 🔌 Conectar a 9Router
 
-[9Router](https://9router.com) es un enrutador autoalojado y compatible con OpenAI:
+[9Router](https://9router.com) es un router autoalojado compatible con OpenAI:
 
 ```bash
 node src/connect-9router.js --base http://localhost:20128 --password 123456
 ```
 
-Valores predeterminados: `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Los modelos se sirven como `24hoursapi/<model id>`.
+Predeterminados: `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Los modelos se sirven como `24hoursapi/<model id>`.
 
 ## 🔌 Conectar a OmniRoute
 
-[OmniRoute](https://omniroute.online) es un enrutador autoalojado y compatible con OpenAI:
+[OmniRoute](https://omniroute.online) es un router autoalojado compatible con OpenAI:
 
 ```bash
 node src/connect-omniroute.js --base http://localhost:20128 --password 123456
 ```
 
-Valores predeterminados: `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Los modelos se sirven como `24hoursapi/<model id>`.
+Predeterminados: `--prefix 24hoursapi`, `--base-url https://24hoursapi.com/v1`, `--model qwen-plus-latest`. Los modelos se sirven como `24hoursapi/<model id>`.
+
 ## 🔑 Qué te da una clave
 
 | | |
@@ -194,7 +201,7 @@ Valores predeterminados: `--prefix 24hoursapi`, `--base-url https://24hoursapi.c
 | 🎁 Qué da el proveedor | **$2 (1.000.000 de unidades)** al registrarte + check-in diario |
 | 🔑 Qué te da una clave | una clave en su propia cuenta en `qwen 官直0.8` / `官转 0.8`, verificada por chat |
 | 🌐 Forma de la API | Compatible con OpenAI: `POST https://24hoursapi.com/v1/chat/completions` |
-| 🔒 Tus datos | solo se contacta con `24hoursapi.com` y tu backend de buzón |
+| 🔒 Tus datos | solo se contacta a `24hoursapi.com` y al backend de tu buzón |
 
 ## 🐞 Problemas
 
