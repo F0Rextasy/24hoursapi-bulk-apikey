@@ -39,6 +39,7 @@
  *   --pool <file>    proxy list, one exit per line (env H24API_PROXIES) [optional]
  *   --exits N        exits tried per account before giving up           [6]
  *   --timeout MS     per-request timeout                             [60000]
+ *   --auto           headless-friendly alias (launcher passes it; no prompts ever)   
  *   --verify-only    re-run every key in keys.txt through the chat gate
  *   --screen         only test the proxy list against 24hoursAPI
  *   --help
@@ -127,6 +128,7 @@ const MODEL = arg('model', "qwen-plus-latest");
 const GROUP = arg('group', "qwen 官直0.8");
 const ALT_GROUPS = arg('alt-groups', "官转 0.8").split(',').map((s) => s.trim()).filter(Boolean);
 const CHECKIN = !has('no-checkin');
+const AUTO = has('auto');
 const VERIFY_ONLY = has('verify-only');
 const SCREEN = has('screen');
 if (arg('brand')) BRAND = new RegExp(arg('brand'), 'i'); // --brand overrides the mail fence
