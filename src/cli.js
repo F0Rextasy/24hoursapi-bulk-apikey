@@ -21,7 +21,7 @@
  *   3. send code  `GET /api/verification?email=…` → panel mails the 6-char code
  *   4. code       poll Emailnator (`/api/message-list` → `/api/message/<id>`)
  *   5. register   `POST /api/user/register` {username,password,email,code}
- *   6. login      `POST /api/user/login` → access_token
+ *   6. login      `POST /api/user/login` → `session` cookie + `New-Api-User: <id>`
  *   7. key        `POST /api/token/` (+ reveal `POST /api/token/<id>/key`)
  *   8. gate       `POST /v1/chat/completions` → 200 with real content = keep
  *
@@ -37,7 +37,7 @@
  *   --alt-groups G   fallback groups, comma separated
  *   --no-checkin     skip the daily check-in (it is on by default here)
  *   --pool <file>    proxy list, one exit per line (env H24API_PROXIES) [optional]
- *   --tries N        exits tried per account before giving up           [2]
+ *   --exits N        exits tried per account before giving up           [6]
  *   --timeout MS     per-request timeout                             [60000]
  *   --verify-only    re-run every key in keys.txt through the chat gate
  *   --screen         only test the proxy list against 24hoursAPI
@@ -45,7 +45,8 @@
  *
  * Zero dependencies. Node.js >= 18. Your proxy list is OPTIONAL: pass --pool
  * (or the H24API_PROXIES env) and every request goes through an exit from it;
- * without a pool the tool connects directly.
+ * a dead exit costs only its attempt (the next candidate takes over) and an
+ * all-dead pool ends the run non-zero; without a pool the tool runs direct.
  */
 
 const fs = require('fs');
@@ -79,6 +80,11 @@ const EMAILNATOR = 'https://www.emailnator.com';
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36';
 
+// Shared/disposable boxes carry other tenants' mail: only a message that names
+// this panel may supply the code (measured 2026-10-24: dddai read a stranger's
+// code from a shared box). Override: --brand / H24API_BRAND_RE.
+let BRAND = new RegExp(process.env.H24API_BRAND_RE || '24hoursapi|h24api', 'i');
+
 // ------------------------------------------------------------------- options
 const argv = process.argv.slice(2);
 function arg(name, dflt) {
@@ -103,16 +109,19 @@ if (has('help') || has('h')) {
   --model <id>   model used for the live gate         [deepseek-v4.1-flash]
   --group <name> token group the key is created in                   [default]
   --pool <file>  proxy list, one exit per line (env H24API_PROXIES) [optional]
+  --exits N      exits tried per account before giving up                [6]
+  --brand RE     sender/subject fence for the code mail (env H24API_BRAND_RE)
 
-Requests go through your proxy list when one is provided (--pool / env).
-Without a pool the tool connects directly.`);
+Requests go through the exits in your proxy list (--pool / env). A dead exit is
+skipped and the next candidate takes the attempt; if every candidate is dead the
+run ends non-zero. Without a pool the tool connects directly.`);
   process.exit(0);
 }
 
 const COUNT = Math.max(1, parseInt(arg('count', '5'), 10) || 5);
 const CONC = Math.min(8, Math.max(1, parseInt(arg('conc', '1'), 10) || 1));
 const GAP_MS = Math.max(0, parseInt(arg('gap', '1200'), 10) || 0);
-const TRIES = Math.max(1, parseInt(arg('tries', '2'), 10) || 2);
+const EXITS = Math.max(1, parseInt(arg('exits', '6'), 10) || 6);
 const TIMEOUT_MS = Math.max(5000, parseInt(arg('timeout', '60000'), 10) || 60000);
 const MODEL = arg('model', "qwen-plus-latest");
 const GROUP = arg('group', "qwen 官直0.8");
@@ -120,6 +129,7 @@ const ALT_GROUPS = arg('alt-groups', "官转 0.8").split(',').map((s) => s.trim(
 const CHECKIN = !has('no-checkin');
 const VERIFY_ONLY = has('verify-only');
 const SCREEN = has('screen');
+if (arg('brand')) BRAND = new RegExp(arg('brand'), 'i'); // --brand overrides the mail fence
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -261,7 +271,7 @@ async function exitJson(proxy, url, opts = {}) {
   const r = await exitFetch(proxy, url, { ...opts, headers });
   let json = null;
   try { json = JSON.parse(r.body); } catch { /* not json */ }
-  return { status: r.status, json, text: r.body };
+  return { status: r.status, json, text: r.body, headers: r.headers };
 }
 
 // ------------------------------------------------------------------- pool
@@ -270,7 +280,7 @@ function loadExits() {
   const poolFile = fs.existsSync(path.resolve(poolArg)) ? path.resolve(poolArg) : path.resolve(ROOT, poolArg);
   if (!fs.existsSync(poolFile)) {
     // No pool = DIRECT mode: a proxy is recommended at scale (per-IP limits,
-    // bans) but the tool works without one. `null` is the direct sentinel.
+    // bans) but the published CLI works without one. `null` is the direct sentinel.
     console.log(`no proxy list at ${poolFile} — running WITHOUT a proxy (direct). Put exits there (or pass --pool) to route through them.`);
     return [null];
   }
@@ -281,6 +291,15 @@ function loadExits() {
   }
   return exits;
 }
+
+/** A dead exit, not a panel verdict — the flow rotates to the next candidate. */
+const isExitError = (e) =>
+  /proxy connect failed|proxy CONNECT refused|proxy timeout|connect timeout|connect failed|ETIMEDOUT|ECONNREFUSED|ECONNRESET|ECONNABORTED|EPIPE|ENETUNREACH|EHOSTUNREACH|EAI_AGAIN|socket hang up|secureConnect|TLS|handshake/i.test(
+    String((e && e.message) || e),
+  );
+
+/** `host:port` of the exit in play, or `direct` when the pool is empty. */
+const exitLabel = (e) => (e ? `${e.host}:${e.port}` : 'direct');
 
 async function screen(exits) {
   let ok = 0;
@@ -312,8 +331,25 @@ async function newMailbox(exit) {
   return { rail: 'emailnator', dotted, plain: `${local.replace(/\./g, '')}@${domain}` };
 }
 
-async function pollCode(exit, box, { timeoutMs = 300000, pollMs = 5000 } = {}) {
-  const seen = new Set();
+/**
+ * Ids already in the box, taken BEFORE the code is requested. Emailnator hands
+ * out PUBLIC shared boxes: a mail that was already there belongs to another
+ * tenant, and its code comes back as "incorrect or expired". A failed snapshot
+ * is not an empty box — it retries, then throws.
+ */
+async function inboxIds(exit, plain) {
+  for (let k = 0; k < 4; k++) {
+    try {
+      const r = await exitJson(exit, `${EMAILNATOR}/api/message-list`, { method: 'POST', body: { email: plain, limit: 20 } });
+      const msgs = r.json && r.json.messages;
+      if (Array.isArray(msgs)) return new Set(msgs.map((m) => String((m && m.id) || '')).filter(Boolean));
+    } catch (e) { /* retry */ }
+    await sleep(4000);
+  }
+  throw new Error('inbox snapshot failed (exits unhealthy)');
+}
+async function pollCode(exit, box, { timeoutMs = 300000, pollMs = 5000 , seenIds = [] } = {}) {
+  const seen = new Set(seenIds instanceof Set ? seenIds : (seenIds || []).map(String));
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     let msgs = [];
@@ -328,11 +364,18 @@ async function pollCode(exit, box, { timeoutMs = 300000, pollMs = 5000 } = {}) {
       // codes too, and grabbing one makes the panel answer "code incorrect". Measured:
       // the panel's own mail lands ~3 min after sendCode (13:45:36 -> 13:48:47Z), so
       // only a brand-matching message is accepted, and the window has to outlast that.
-      if (!/24hoursapi|h24api/i.test(`${m.subject || ''} ${m.from || ''}`)) continue;
+      if (!BRAND.test(`${m.from || ''} ${m.subject || ''}`)) continue;
       const r = await exitJson(exit, `${EMAILNATOR}/api/message/${encodeURIComponent(m.id)}`).catch(() => null);
-      const text = r ? r.text : '';
-      const code = (text.match(/(?:code|verification|验证码|kodu)[^\d]{0,24}(\d{4,8})/i) || text.match(/\b(\d{6})\b/));
-      if (code) return { code: code[1], subject: m.subject || '' };
+      const plain = String(r ? String(r.text || '') : '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      // The panel's code is 6 mixed hex (`a905f9`) and arrives ~3 min after the send:
+      // the old digits-only matcher plus a bare `\b(\d{6})\b` fallback read NONE on the
+      // panel's own mail and could grab a stranger's number (measured 2026-10-24).
+      const code =
+        (plain.match(/验证码[^0-9A-Za-z]{0,12}([0-9a-fA-F]{6})\b/) || [])[1] ||
+        (plain.match(/(?:code|verification|验证码|kodu)[^0-9A-Za-z]{0,24}([0-9a-fA-F]{6})\b/i) || [])[1] ||
+        (plain.match(/(?:code|verification|验证码|kodu)[^\d]{0,24}(\d{4,8})/i) || [])[1] ||
+        null;
+      if (code) return { code, subject: m.subject || '' };
     }
     await sleep(pollMs);
   }
@@ -354,20 +397,27 @@ async function signUp(exit) {
   const gates = (st.json && st.json.data) || {};
   if (gates.register_enabled === false) throw new Error('register is disabled on the panel right now');
   const box = await newMailbox(exit);
+  // Shared box: snapshot the ids BEFORE the code is asked for.
+  const seenIds = await inboxIds(exit, box.plain);
   const sc = await exitJson(exit, `${BASE}/api/verification?email=${encodeURIComponent(box.plain)}`);
   if (!(sc.json && sc.json.success)) throw new Error(`sendCode HTTP ${sc.status}: ${String(sc.text).slice(0, 140)}`);
-  const { code, subject } = await pollCode(exit, box);
+  const { code, subject } = await pollCode(exit, box, { seenIds });
   const reg = await exitJson(exit, `${BASE}/api/user/register`, {
     method: 'POST',
     body: { username, password, email: box.plain, verification_code: code },
   });
   if (!(reg.json && reg.json.success)) throw new Error(`register HTTP ${reg.status}: ${String(reg.text).slice(0, 140)}`);
   const lg = await exitJson(exit, `${BASE}/api/user/login`, { method: 'POST', body: { username, password } });
-  const token = lg.json && lg.json.data && lg.json.data.access_token;
-  if (!token) throw new Error(`login HTTP ${lg.status}: ${String(lg.text).slice(0, 140)}`);
-  const me = await exitJson(exit, `${BASE}/api/user/self`, { headers: { authorization: `Bearer ${token}` } });
+  const loginData = (lg.json && lg.json.data) || {};
+  // The panel answers 200 without `access_token`: the session rides in the `session`
+  // cookie and every user-scoped call needs `New-Api-User: <login data.id>` (2026-10-24).
+  const sc2 = lg.headers && lg.headers['set-cookie'];
+  const cookie = (Array.isArray(sc2) ? sc2 : sc2 ? [sc2] : []).map((c) => String(c).split(';')[0]).join('; ');
+  const token = loginData.access_token;
+  if (!token && !cookie) throw new Error(`login HTTP ${lg.status}: ${String(lg.text).slice(0, 140)}`);
+  const auth = token ? { authorization: `Bearer ${token}` } : { cookie, 'New-Api-User': String(loginData.id) };
+  const me = await exitJson(exit, `${BASE}/api/user/self`, { headers: auth });
   const data = (me.json && me.json.data) || {};
-  const auth = { authorization: `Bearer ${token}` };
   if (data.id) auth['New-Api-User'] = String(data.id);
   // Daily check-in: on a check-in-only panel this is where the balance comes
   // from (registration credit alone cannot carry a key).
@@ -375,7 +425,7 @@ async function signUp(exit) {
   if (CHECKIN) {
     checkin = await exitJson(exit, `${BASE}/api/user/checkin`, { method: 'POST', headers: auth }).catch(() => null);
     if (checkin && checkin.status === 200) {
-      const me2 = await exitJson(exit, `${BASE}/api/user/self`, { headers: { authorization: `Bearer ${token}` } }).catch(() => null);
+      const me2 = await exitJson(exit, `${BASE}/api/user/self`, { headers: auth }).catch(() => null);
       const q2 = me2 && me2.json && me2.json.data && me2.json.data.quota;
       if (typeof q2 === 'number') data.quotaAfterCheckin = q2;
     }
@@ -437,40 +487,57 @@ async function mint() {
   const exits = loadExits();
   if (SCREEN) return void (await screen(exits));
   const accounts = loadAccounts();
-  log(`24hoursapi · ${COUNT} key(s) · conc ${CONC} · exits ${exits.filter(Boolean).length || 'direct'} · keys land in keys.txt`);
+  const routes = exits[0] === null ? 1 : EXITS; // no pool = one direct attempt, there is nothing to rotate to
+  log(`24hoursapi · ${COUNT} key(s) · conc ${CONC} · exits ${exits.filter(Boolean).length || 'direct'} · up to ${routes} per account · keys land in keys.txt`);
   let made = 0;
+  let transportDead = 0;
   for (let round = 0; round < COUNT; round += CONC) {
     const jobs = [];
     for (let k = 0; k < CONC && round + k < COUNT; k++) {
       const i = round + k;
       jobs.push((async () => {
         let lastErr = null;
-        for (let t2 = 0; t2 < TRIES; t2++) {
-          const exit = exits[(i + t2) % exits.length];
+        let lastWasExit = false;
+        for (let a = 0; a < routes; a++) {
+          const exit = exits[(i + a) % exits.length];
           try {
             const rec = await signUp(exit);
-            if (!rec.key) { lastErr = new Error('no key material in the token response'); continue; }
+            if (!rec.key) { lastErr = new Error('no key material in the token response'); lastWasExit = false; continue; }
             const g = await chatGate(exit, rec.key);
             if (!g.ok) {
               if (deadVerdict(g.status, g.ok)) recordDeadKey(rec.key, `chat gate ${g.status}`);
               lastErr = new Error(`chat gate ${g.status}: ${g.sample}`);
-              accounts.push({ at: new Date().toISOString(), username: rec.username, email: rec.box.plain, exit: exit ? `${exit.host}:${exit.port}` : 'direct', gate: g.status });
+              accounts.push({ at: new Date().toISOString(), username: rec.username, email: rec.box.plain, exit: exitLabel(exit), gate: g.status });
               saveAccounts(accounts);
+              lastWasExit = false;
               continue;
             }
             appendKey(rec.key);
-            accounts.push({ at: new Date().toISOString(), username: rec.username, email: rec.box.plain, uid: rec.uid, quota: rec.quota, quotaAfterCheckin: rec.quotaAfterCheckin ?? null, checkin: rec.checkin ?? null, group: rec.usedGroup ?? null, exit: exit ? `${exit.host}:${exit.port}` : 'direct', key_masked: `${rec.key.slice(0, 8)}…`, gate: 200 });
+            accounts.push({ at: new Date().toISOString(), username: rec.username, email: rec.box.plain, uid: rec.uid, quota: rec.quota, quotaAfterCheckin: rec.quotaAfterCheckin ?? null, checkin: rec.checkin ?? null, group: rec.usedGroup ?? null, exit: exitLabel(exit), key_masked: `${rec.key.slice(0, 8)}…`, gate: 200 });
             saveAccounts(accounts);
             made++;
             log(`account ${i + 1} ✔ chat-200 ${MODEL} · ${rec.usedGroup || '?'} · quota ${rec.quota}${rec.quotaAfterCheckin ? ` → ${rec.quotaAfterCheckin} (checkin ${rec.checkin})` : ''} · ${rec.key.slice(0, 8)}…`);
             return;
-          } catch (e) { lastErr = e; }
+          } catch (e) {
+            lastErr = e;
+            lastWasExit = isExitError(e);
+            if (lastWasExit) {
+              const where = exit ? `exit ${a + 1}/${routes} ${exitLabel(exit)}` : `direct attempt ${a + 1}/${routes}`;
+              log(`account ${i + 1}: ${where} dead (${String(e.message).slice(0, 70)})${exit ? ' → next exit' : ''}`);
+            }
+          }
         }
+        if (lastWasExit) transportDead++;
         log(`account ${i + 1}: ${lastErr ? String(lastErr.message).slice(0, 140) : 'failed'}`);
       })());
     }
     await Promise.all(jobs);
     if (GAP_MS) await sleep(GAP_MS);
+  }
+  if (!made && transportDead === COUNT) {
+    const route = exits[0] === null ? 'direct mode (no proxy list)' : `${exits.length}-exit pool`;
+    console.error(`[fatal] no usable route — ${COUNT} account(s) × ${routes} candidate(s) over ${route}: every attempt died at the transport layer.`);
+    process.exit(1);
   }
   log(`done — ${made}/${COUNT} key(s) written to ${KEYS_FILE}`);
 }
